@@ -1,0 +1,48 @@
+// Database-ready schema mirroring src/lib/types.ts. Not used at runtime yet:
+// the app currently runs on the in-memory store in src/lib/db.ts.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  category     String
+  description  String        @default("")
+  durationMin  Int
+  priceCents   Int
+  staff        Staff[]
+  appointments Appointment[]
+}
+
+model Staff {
+  id           String        @id @default(cuid())
+  name         String
+  role         String
+  email        String        @unique
+  workingHours Json // 7 entries, Sunday first: { start: "HH:MM", end: "HH:MM" } | null
+  services     Service[]
+  appointments Appointment[]
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  service       Service  @relation(fields: [serviceId], references: [id])
+  serviceId     String
+  staff         Staff    @relation(fields: [staffId], references: [id])
+  staffId       String
+  date          String // YYYY-MM-DD
+  time          String // HH:MM
+  customerName  String
+  customerEmail String
+  customerPhone String
+  status        String   @default("pending") // pending | confirmed | cancelled
+  createdAt     DateTime @default(now())
+
+  @@index([staffId, date])
+}
