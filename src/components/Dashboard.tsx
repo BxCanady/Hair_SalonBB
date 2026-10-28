@@ -1,11 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import ScheduleTab from "./ScheduleTab";
-import StaffTab from "./StaffTab";
+import OwnerTab from "./OwnerTab";
 import ServicesTab from "./ServicesTab";
 import type { Appointment, Service, Staff } from "@/lib/types";
 
-const tabs = ["Schedule", "Staff", "Services"] as const;
+const tabs = ["Schedule", "Owner profile", "Services"] as const;
 
 export default function Dashboard() {
   const [tab, setTab] = useState<(typeof tabs)[number]>("Schedule");
@@ -51,8 +51,8 @@ export default function Dashboard() {
         ))}
       </div>
       <div role="tabpanel">
-        {tab === "Schedule" && <ScheduleTab services={services} staff={staff} appointments={appointments} reload={load} />}
-        {tab === "Staff" && <StaffTab services={services} staff={staff} reload={load} />}
+        {tab === "Schedule" && <ScheduleTab services={services} stylist={staff[0] ?? null} appointments={appointments} reload={load} />}
+        {tab === "Owner profile" && <OwnerTab services={services} owner={staff[0] ?? null} reload={load} />}
         {tab === "Services" && <ServicesTab services={services} reload={load} />}
       </div>
     </div>

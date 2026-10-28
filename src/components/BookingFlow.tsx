@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import MonthGrid from "./MonthGrid";
+import Button from "./ui/Button";
 import { addDays, fmt12, fmtDate, money } from "@/lib/time";
 import type { Appointment, Service, Slot, Staff } from "@/lib/types";
 
@@ -12,7 +13,6 @@ export default function BookingFlow() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loadError, setLoadError] = useState("");
   const [serviceId, setServiceId] = useState("");
-  const [staffId, setStaffId] = useState("any");
   const today = fmtDate(new Date());
   const [month, setMonth] = useState(today);
   const [date, setDate] = useState("");
@@ -33,10 +33,9 @@ export default function BookingFlow() {
   }, []);
 
   const service = services.find((s) => s.id === serviceId);
-  const eligibleStaff = useMemo(() => staff.filter((s) => s.serviceIds.includes(serviceId)), [staff, serviceId]);
   const categories = useMemo(() => [...new Set(services.map((s) => s.category))], [services]);
 
-  const slotsKey = `${serviceId}|${staffId}|${date}|${refresh}`;
+  const slotsKey = `${serviceId}|${date}|${refresh}`;
   const [loaded, setLoaded] = useState({ key: "", slots: [] as Slot[] });
   const slotsLoading = !!serviceId && !!date && loaded.key !== slotsKey;
   const slots = loaded.key === slotsKey ? loaded.slots : [];
@@ -44,18 +43,17 @@ export default function BookingFlow() {
   useEffect(() => {
     if (!serviceId || !date) return;
     let cancelled = false;
-    fetch(`/api/availability?serviceId=${serviceId}&date=${date}${staffId !== "any" ? `&staffId=${staffId}` : ""}`)
+    fetch(`/api/availability?serviceId=${serviceId}&date=${date}`)
       .then((r) => r.json())
       .catch(() => [])
       .then((s) => !cancelled && setLoaded({ key: slotsKey, slots: Array.isArray(s) ? s : [] }));
     return () => {
       cancelled = true;
     };
-  }, [serviceId, staffId, date, refresh, slotsKey]);
+  }, [serviceId, date, refresh, slotsKey]);
 
   const chooseService = (id: string) => {
     setServiceId(id);
-    setStaffId("any");
     setDate("");
     setTime("");
   };
@@ -74,7 +72,7 @@ export default function BookingFlow() {
       const res = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceId, staffId, date, time, ...form }),
+        body: JSON.stringify({ serviceId, date, time, ...form }),
       });
       const body = await res.json();
       if (!res.ok) {
@@ -108,9 +106,9 @@ export default function BookingFlow() {
           <Row k="Time" v={fmt12(done.time)} />
           <Row k="Status" v="Pending salon confirmation" />
         </dl>
-        <button className="mt-5 rounded-lg bg-violet-600 px-4 py-2 font-medium text-white hover:bg-violet-700" onClick={() => location.reload()}>
+        <Button className="mt-5" onClick={() => location.reload()}>
           Book another appointment
-        </button>
+        </Button>
       </section>
     );
   }
@@ -143,28 +141,9 @@ export default function BookingFlow() {
       </section>
 
       {service && (
-        <section aria-labelledby="h-staff">
-          <h2 id="h-staff" className="mb-2 text-lg font-semibold">2. Choose a stylist</h2>
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="h-staff">
-            {[{ id: "any", name: "Any available", role: "" }, ...eligibleStaff].map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                role="radio"
-                aria-checked={staffId === s.id}
-                onClick={() => { setStaffId(s.id); setTime(""); }}
-                className={`rounded-full border px-4 py-2 text-sm ${staffId === s.id ? "border-violet-600 bg-violet-600 text-white" : "border-gray-300 bg-white hover:border-violet-400"}`}
-              >
-                {s.name}{s.role ? ` · ${s.role}` : ""}
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {service && (
         <section aria-labelledby="h-date">
-          <h2 id="h-date" className="mb-2 text-lg font-semibold">3. Pick a date &amp; time</h2>
+          <h2 id="h-date" className="mb-2 text-lg font-semibold">2. Pick a date &amp; time</h2>
+          {staff[0] && <p className="mb-2 text-sm text-gray-500">Appointments are with {staff[0].name}, the salon owner.</p>}
           <div className={card}>
             <div className="mb-2 flex items-center justify-between">
               <button type="button" aria-label="Previous month" disabled={month.slice(0, 7) <= today.slice(0, 7)} onClick={() => shiftMonth(-1)} className="rounded px-3 py-1 hover:bg-gray-100 disabled:opacity-30">‹</button>
@@ -179,7 +158,7 @@ export default function BookingFlow() {
               {slotsLoading ? (
                 <p className="text-sm text-gray-500">Loading…</p>
               ) : slots.length === 0 ? (
-                <p className="text-sm text-gray-500">No availability on this day. Try another date or stylist.</p>
+                <p className="text-sm text-gray-500">No availability on this day. Try another date.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {slots.map((s) => (
@@ -197,7 +176,7 @@ export default function BookingFlow() {
 
       {service && date && time && (
         <section aria-labelledby="h-details">
-          <h2 id="h-details" className="mb-2 text-lg font-semibold">4. Your details</h2>
+          <h2 id="h-details" className="mb-2 text-lg font-semibold">3. Your details</h2>
           <form onSubmit={submit} className={`${card} space-y-3`}>
             <p className="text-sm text-gray-600">{service.name} · {date} at {fmt12(time)} · {money(service.priceCents)}</p>
             <label className="block text-sm font-medium">Name
@@ -210,9 +189,9 @@ export default function BookingFlow() {
               <input className={input} type="tel" required autoComplete="tel" pattern="[\d\s()+.\-]{7,}" value={form.customerPhone} onChange={(e) => setForm({ ...form, customerPhone: e.target.value })} />
             </label>
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-            <button disabled={submitting} className="w-full rounded-lg bg-violet-600 px-4 py-3 font-medium text-white hover:bg-violet-700 disabled:opacity-50">
+            <Button type="submit" disabled={submitting} className="w-full">
               {submitting ? "Booking…" : "Confirm booking"}
-            </button>
+            </Button>
           </form>
         </section>
       )}

@@ -27,15 +27,19 @@ function seed(): Store {
       { id: "svc-style", name: "Styling", category: "Styling", description: "Blowout or special-occasion style.", durationMin: 60, priceCents: 6500 },
     ],
     staff: [
-      { id: "stf-ava", name: "Ava Brooks", role: "Senior Stylist", email: "ava@hairsalonbb.test", serviceIds: ["svc-cut", "svc-trim", "svc-color", "svc-highlight", "svc-style"], workingHours: weekdayHours("09:00", "17:00") },
-      { id: "stf-leo", name: "Leo Martin", role: "Stylist", email: "leo@hairsalonbb.test", serviceIds: ["svc-cut", "svc-trim", "svc-style"], workingHours: weekdayHours("11:00", "19:00", false) },
-      { id: "stf-mia", name: "Mia Chen", role: "Colorist", email: "mia@hairsalonbb.test", serviceIds: ["svc-color", "svc-highlight", "svc-style"], workingHours: weekdayHours("09:00", "15:00") },
+      { id: "stf-ava", name: "Ava Brooks", role: "Owner & Stylist", email: "ava@hairsalonbb.test", serviceIds: ["svc-cut", "svc-trim", "svc-color", "svc-highlight", "svc-style"], workingHours: weekdayHours("09:00", "17:00") },
     ],
     appointments: [],
   };
 }
 
 const g = globalThis as unknown as { __salonStore?: Store };
-export const db: Store = (g.__salonStore ??= seed());
+const store = g.__salonStore ?? seed();
+const owner = store.staff[0] ?? seed().staff[0];
+store.staff = [owner];
+store.appointments.forEach((appointment) => {
+  appointment.staffId = owner.id;
+});
+export const db: Store = (g.__salonStore ??= store);
 
 export const newId = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;

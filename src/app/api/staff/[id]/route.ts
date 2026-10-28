@@ -13,14 +13,3 @@ export async function PUT(req: Request, { params }: Ctx) {
   db.staff[idx] = { id, ...parsed };
   return NextResponse.json(db.staff[idx]);
 }
-
-export async function DELETE(_req: Request, { params }: Ctx) {
-  const { id } = await params;
-  const idx = db.staff.findIndex((s) => s.id === id);
-  if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (db.appointments.some((a) => a.staffId === id && a.status !== "cancelled")) {
-    return NextResponse.json({ error: "Staff member has active appointments" }, { status: 409 });
-  }
-  db.staff.splice(idx, 1);
-  return NextResponse.json({ ok: true });
-}

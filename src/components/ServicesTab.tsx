@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { api, btnDanger, btnGhost, btnPrimary, cardCls, inputCls } from "./ui";
+import { api, Button, cardCls, inputCls } from "./ui";
 import { money } from "@/lib/time";
 import type { Service } from "@/lib/types";
 
@@ -34,7 +34,7 @@ export default function ServicesTab({ services, reload }: { services: Service[];
 
   return (
     <div className="space-y-3">
-      <button className={btnPrimary} onClick={() => edit()}>Add service</button>
+      <Button size="sm" onClick={() => edit()}>Add service</Button>
       {err && <p role="alert" className="text-sm text-red-600">{err}</p>}
       {editId && (
         <form onSubmit={save} className={`${cardCls} grid gap-3 sm:grid-cols-2`}>
@@ -44,14 +44,14 @@ export default function ServicesTab({ services, reload }: { services: Service[];
           <label className="text-sm">Price ($)<input type="number" min={0} step="0.01" required className={inputCls} value={f.priceDollars} onChange={(e) => setF({ ...f, priceDollars: Number(e.target.value) })} /></label>
           <label className="text-sm sm:col-span-2">Description<input className={inputCls} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></label>
           {err && <p role="alert" className="text-sm text-red-600 sm:col-span-2">{err}</p>}
-          <div className="flex gap-2 sm:col-span-2"><button className={btnPrimary}>Save</button><button type="button" className={btnGhost} onClick={() => setEditId(null)}>Cancel</button></div>
+          <div className="flex gap-2 sm:col-span-2"><Button size="sm" type="submit">Save</Button><Button size="sm" variant="ghost" onClick={() => setEditId(null)}>Cancel</Button></div>
         </form>
       )}
       <ul className="space-y-2">
         {services.map((s) => (
           <li key={s.id} className={`${cardCls} flex items-center justify-between gap-2 text-sm`}>
             <div><div className="font-semibold">{s.name} <span className="font-normal text-gray-500">· {s.category}</span></div><div className="text-gray-500">{s.durationMin} min · {money(s.priceCents)}</div></div>
-            <div className="flex gap-2"><button className={btnGhost} onClick={() => edit(s)}>Edit</button><button className={btnDanger} onClick={() => remove(s)}>Delete</button></div>
+            <div className="flex gap-2"><Button size="sm" variant="ghost" onClick={() => edit(s)}>Edit</Button><Button size="sm" variant="danger" onClick={() => remove(s)}>Delete</Button></div>
           </li>
         ))}
       </ul>

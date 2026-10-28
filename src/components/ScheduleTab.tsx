@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import MonthGrid from "./MonthGrid";
-import { api, btnDanger, btnGhost, btnPrimary, cardCls, inputCls } from "./ui";
+import { api, Button, cardCls, inputCls } from "./ui";
 import { addDays, fmt12, fmtDate, toMinutes, toTime, money } from "@/lib/time";
 import type { Appointment, Service, Staff } from "@/lib/types";
 
@@ -12,13 +12,12 @@ const badgeCls: Record<string, string> = {
   cancelled: "bg-gray-200 text-gray-600",
 };
 
-export default function ScheduleTab({ services, staff, appointments, reload }: { services: Service[]; staff: Staff[]; appointments: Appointment[]; reload: () => Promise<void> }) {
+export default function ScheduleTab({ services, stylist, appointments, reload }: { services: Service[]; stylist: Staff | null; appointments: Appointment[]; reload: () => Promise<void> }) {
   const [view, setView] = useState<View>("day");
   const [date, setDate] = useState(fmtDate(new Date()));
-  const [staffFilter, setStaffFilter] = useState("all");
   const [msg, setMsg] = useState("");
 
-  const visible = appointments.filter((a) => staffFilter === "all" || a.staffId === staffFilter);
+  const visible = appointments;
   const weekStart = addDays(date, -new Date(`${date}T00:00:00Z`).getUTCDay());
   const step = view === "day" ? 1 : view === "week" ? 7 : 0;
 
@@ -42,7 +41,7 @@ export default function ScheduleTab({ services, staff, appointments, reload }: {
     <ul className="space-y-2">
       {forDay(d).length === 0 && <li className="text-sm text-gray-500">No appointments.</li>}
       {forDay(d).map((a) => (
-        <AppointmentCard key={a.id} a={a} services={services} staff={staff} act={act} />
+        <AppointmentCard key={a.id} a={a} services={services} stylist={stylist} act={act} />
       ))}
     </ul>
   );
@@ -55,14 +54,11 @@ export default function ScheduleTab({ services, staff, appointments, reload }: {
             <button key={v} aria-pressed={view === v} onClick={() => setView(v)} className={`px-3 py-1.5 text-sm capitalize ${view === v ? "bg-violet-600 text-white" : "bg-white"}`}>{v}</button>
           ))}
         </div>
-        <button className={btnGhost} aria-label="Previous" onClick={() => shift(-1)}>‹</button>
-        <button className={btnGhost} onClick={() => setDate(fmtDate(new Date()))}>Today</button>
-        <button className={btnGhost} aria-label="Next" onClick={() => shift(1)}>›</button>
+        <Button size="sm" variant="ghost" aria-label="Previous" onClick={() => shift(-1)}>‹</Button>
+        <Button size="sm" variant="ghost" onClick={() => setDate(fmtDate(new Date()))}>Today</Button>
+        <Button size="sm" variant="ghost" aria-label="Next" onClick={() => shift(1)}>›</Button>
         <span className="font-medium">{view === "month" ? date.slice(0, 7) : view === "week" ? `${weekStart} – ${addDays(weekStart, 6)}` : date}</span>
-        <select aria-label="Filter by staff" className={`${inputCls} ml-auto w-auto`} value={staffFilter} onChange={(e) => setStaffFilter(e.target.value)}>
-          <option value="all">All staff</option>
-          {staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        {stylist && <span className="ml-auto text-sm text-gray-500">Owner: {stylist.name}</span>}
       </div>
       {msg && <p role="alert" className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}
 
@@ -92,13 +88,12 @@ export default function ScheduleTab({ services, staff, appointments, reload }: {
   );
 }
 
-function AppointmentCard({ a, services, staff, act }: { a: Appointment; services: Service[]; staff: Staff[]; act: (id: string, body: unknown) => Promise<string | null> }) {
+function AppointmentCard({ a, services, stylist, act }: { a: Appointment; services: Service[]; stylist: Staff | null; act: (id: string, body: unknown) => Promise<string | null> }) {
   const [editing, setEditing] = useState(false);
   const [date, setDate] = useState(a.date);
   const [time, setTime] = useState(a.time);
-  const [staffId, setStaffId] = useState(a.staffId);
   const sv = services.find((s) => s.id === a.serviceId);
-  const st = staff.find((s) => s.id === a.staffId);
+  const st = stylist;
   return (
     <li className={`${cardCls} text-sm ${a.status === "cancelled" ? "opacity-60" : ""}`}>
       <div className="flex items-start justify-between gap-2">
@@ -111,22 +106,17 @@ function AppointmentCard({ a, services, staff, act }: { a: Appointment; services
       </div>
       {a.status !== "cancelled" && !editing && (
         <div className="mt-2 flex flex-wrap gap-2">
-          {a.status === "pending" && <button className={btnPrimary} onClick={() => act(a.id, { status: "confirmed" })}>Accept</button>}
-          <button className={btnGhost} onClick={() => setEditing(true)}>Reschedule</button>
-          <button className={btnDanger} onClick={() => confirm("Cancel this appointment?") && act(a.id, { status: "cancelled" })}>Cancel</button>
+          {a.status === "pending" && <Button size="sm" onClick={() => act(a.id, { status: "confirmed" })}>Accept</Button>}
+          <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>Reschedule</Button>
+          <Button size="sm" variant="danger" onClick={() => confirm("Cancel this appointment?") && act(a.id, { status: "cancelled" })}>Cancel</Button>
         </div>
       )}
       {editing && (
-        <form className="mt-2 flex flex-wrap items-end gap-2" onSubmit={async (e) => { e.preventDefault(); if (!(await act(a.id, { date, time, staffId }))) setEditing(false); }}>
+        <form className="mt-2 flex flex-wrap items-end gap-2" onSubmit={async (e) => { e.preventDefault(); if (!(await act(a.id, { date, time }))) setEditing(false); }}>
           <label className="text-xs">Date<input type="date" required className={inputCls} value={date} onChange={(e) => setDate(e.target.value)} /></label>
           <label className="text-xs">Time<input type="time" step={1800} required className={inputCls} value={time} onChange={(e) => setTime(e.target.value)} /></label>
-          <label className="text-xs">Staff
-            <select className={inputCls} value={staffId} onChange={(e) => setStaffId(e.target.value)}>
-              {staff.filter((s) => s.serviceIds.includes(a.serviceId)).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </label>
-          <button className={btnPrimary}>Save</button>
-          <button type="button" className={btnGhost} onClick={() => setEditing(false)}>Close</button>
+          <Button size="sm" type="submit">Save</Button>
+          <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Close</Button>
         </form>
       )}
     </li>
