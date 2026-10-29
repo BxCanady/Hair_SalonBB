@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import BookingFlow from "@/components/BookingFlow";
 
-export const metadata = { title: "Book an appointment · Hair_SalonBB" };
+export const metadata = { title: "Book an appointment · Beast at Braids" };
 
 export default function BookPage() {
   return (

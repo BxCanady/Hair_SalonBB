@@ -4,11 +4,11 @@ import RegisterSW from "@/components/RegisterSW";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hair_SalonBB",
+  title: "Beast@Braid",
   description: "Book hair salon appointments and manage the salon schedule.",
   manifest: "/manifest.json",
   icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
-  appleWebApp: { capable: true, title: "SalonBB" },
+  appleWebApp: { capable: true, title: "Beast@Braid" },
 };
 
 export const viewport: Viewport = { themeColor: "#7c3aed" };

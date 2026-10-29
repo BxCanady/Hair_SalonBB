@@ -20,7 +20,7 @@ const navItems = [
     icon: CalendarDays,
   },
   {
-    label: "Owner",
+    label: "Login",
     href: "/dashboard",
     icon: User,
   },
