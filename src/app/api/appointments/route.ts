@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
 import { db, newId } from "@/lib/db";
+import { denyUnlessAdmin } from "@/lib/auth";
+import { clientKey, rateLimit } from "@/lib/rateLimit";
 import { getAvailableSlots } from "@/lib/availability";
 import { fmtDate, isValidDate, isValidTime } from "@/lib/time";
 import { parseCustomer, readJson } from "@/lib/validate";
 import type { Appointment } from "@/lib/types";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = await denyUnlessAdmin(req);
+  if (denied) return denied;
   return NextResponse.json(db.appointments);
 }
 
 export async function POST(req: Request) {
+  if (!rateLimit(`book:${clientKey(req)}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
+  }
   const b = (await readJson(req)) ?? {};
   const customer = parseCustomer(b);
   const service = db.services.find((s) => s.id === b.serviceId);

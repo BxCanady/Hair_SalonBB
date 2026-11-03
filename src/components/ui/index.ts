@@ -7,11 +7,13 @@ export const cardCls = "rounded-2xl border border-gray-200 bg-white p-4 shadow-s
 export { default as Button } from "./Button";
 export { default as MobileNav } from "./MobileNav";
 
+import { authHeaders } from "@/lib/adminClient";
+
 export async function api(path: string, method: string, body?: unknown): Promise<string | null> {
   try {
     const res = await fetch(path, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (res.ok) return null;

@@ -35,4 +35,20 @@ export type Appointment = {
   createdAt: string;
 };
 
+export type Hairstyle = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  serviceId: string | null;
+  priceCents: number;
+  durationMin: number;
+  isPublished: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type HairstyleInput = Omit<Hairstyle, "id" | "createdAt" | "updatedAt">;
+
 export type Slot = { time: string; staffId: string };

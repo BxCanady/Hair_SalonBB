@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { denyUnlessAdmin } from "@/lib/auth";
 import { parseStaff, readJson } from "@/lib/validate";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Ctx) {
+  const denied = await denyUnlessAdmin(req);
+  if (denied) return denied;
   const { id } = await params;
   const idx = db.staff.findIndex((s) => s.id === id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });

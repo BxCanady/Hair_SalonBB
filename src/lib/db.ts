@@ -1,11 +1,16 @@
-import type { Appointment, Service, Staff, WorkingHours } from "./types";
+import type { Appointment, Hairstyle, Service, Staff, WorkingHours } from "./types";
 
 /**
  * In-memory mock database. The shapes match prisma/schema.prisma, so swapping
  * these arrays for Prisma/Supabase queries only requires changes in this file
  * and the route handlers. Data resets when the server restarts.
  */
-type Store = { services: Service[]; staff: Staff[]; appointments: Appointment[] };
+type Store = { services: Service[]; staff: Staff[]; appointments: Appointment[]; hairstyles: Hairstyle[] };
+
+const sampleHairstyle = (n: number, title: string, description: string, serviceId: string, priceCents: number, durationMin: number): Hairstyle => {
+  const now = new Date().toISOString();
+  return { id: `hs-sample-${n}`, title, description, imageUrl: "/images/hero.png", serviceId, priceCents, durationMin, isPublished: true, sortOrder: n, createdAt: now, updatedAt: now };
+};
 
 const weekdayHours = (start: string, end: string, sat = true): WorkingHours => [
   null,
@@ -30,12 +35,18 @@ function seed(): Store {
       { id: "stf-ava", name: "Ava Brooks", role: "Owner & Stylist", email: "ava@hairsalonbb.test", serviceIds: ["svc-cut", "svc-trim", "svc-color", "svc-highlight", "svc-style"], workingHours: weekdayHours("09:00", "17:00") },
     ],
     appointments: [],
+    hairstyles: [
+      sampleHairstyle(1, "Micro Locs", "Fine, lightweight locs installed with precision.", "svc-style", 25000, 360),
+      sampleHairstyle(2, "Custom Braided Perfection", "Tailored braids finished to your vision.", "svc-style", 15000, 240),
+      sampleHairstyle(3, "Short Hair Gripper", "A clean, secure style for shorter hair.", "svc-cut", 8000, 90),
+    ],
   };
 }
 
 const g = globalThis as unknown as { __salonStore?: Store };
 const store = g.__salonStore ?? seed();
 const owner = store.staff[0] ?? seed().staff[0];
+store.hairstyles ??= seed().hairstyles;
 store.staff = [owner];
 store.appointments.forEach((appointment) => {
   appointment.staffId = owner.id;

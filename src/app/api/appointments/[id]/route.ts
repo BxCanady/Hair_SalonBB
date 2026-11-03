@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { denyUnlessAdmin } from "@/lib/auth";
 import { fitsWorkingHours, hasConflict } from "@/lib/availability";
 import { isValidDate, isValidTime } from "@/lib/time";
 import { readJson } from "@/lib/validate";
@@ -8,6 +9,8 @@ type Ctx = { params: Promise<{ id: string }> };
 
 /** Body: { status: "confirmed" | "cancelled" } and/or { date, time, staffId? } to reschedule. */
 export async function PATCH(req: Request, { params }: Ctx) {
+  const denied = await denyUnlessAdmin(req);
+  if (denied) return denied;
   const { id } = await params;
   const appt = db.appointments.find((a) => a.id === id);
   if (!appt) return NextResponse.json({ error: "Not found" }, { status: 404 });

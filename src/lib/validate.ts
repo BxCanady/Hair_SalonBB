@@ -1,8 +1,25 @@
-import type { Service, Staff, WorkingHours } from "./types";
+import type { HairstyleInput, Service, Staff, WorkingHours } from "./types";
 import { isValidTime } from "./time";
+import { isTrustedImageUrl } from "./storage";
 
 type Obj = Record<string, unknown>;
 const str = (v: unknown, max = 200) => (typeof v === "string" && v.trim() && v.length <= max ? v.trim() : null);
+
+export function parseHairstyle(b: Obj): HairstyleInput | null {
+  const title = str(b.title, 100);
+  const description = typeof b.description === "string" ? b.description.trim().slice(0, 500) : "";
+  const imageUrl = typeof b.imageUrl === "string" ? b.imageUrl : "";
+  const serviceId = b.serviceId === null || b.serviceId === undefined || b.serviceId === "" ? null : str(b.serviceId, 100);
+  const priceCents = Number(b.priceCents);
+  const durationMin = Number(b.durationMin);
+  const sortOrder = b.sortOrder === undefined ? 0 : Number(b.sortOrder);
+  if (!title || !isTrustedImageUrl(imageUrl) || (b.serviceId && !serviceId)) return null;
+  if (!Number.isInteger(priceCents) || priceCents < 0 || priceCents > 10_000_000) return null;
+  if (!Number.isInteger(durationMin) || durationMin < 15 || durationMin > 960) return null;
+  if (!Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 100_000) return null;
+  if (typeof b.isPublished !== "boolean") return null;
+  return { title, description, imageUrl, serviceId, priceCents, durationMin, isPublished: b.isPublished, sortOrder };
+}
 
 export function parseService(b: Obj): Omit<Service, "id"> | null {
   const name = str(b.name, 100);

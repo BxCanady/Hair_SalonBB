@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import MonthGrid from "./MonthGrid";
 import Button from "./ui/Button";
 import { addDays, fmt12, fmtDate, money } from "@/lib/time";
@@ -12,7 +13,8 @@ export default function BookingFlow() {
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loadError, setLoadError] = useState("");
-  const [serviceId, setServiceId] = useState("");
+  const preselected = useSearchParams().get("serviceId") ?? "";
+  const [serviceId, setServiceId] = useState(preselected);
   const today = fmtDate(new Date());
   const [month, setMonth] = useState(today);
   const [date, setDate] = useState("");
@@ -42,15 +44,20 @@ export default function BookingFlow() {
 
   useEffect(() => {
     if (!serviceId || !date) return;
-    let cancelled = false;
-    fetch(`/api/availability?serviceId=${serviceId}&date=${date}`)
+    const ctrl = new AbortController();
+    fetch(`/api/availability?serviceId=${encodeURIComponent(serviceId)}&date=${date}`, { signal: ctrl.signal })
       .then((r) => r.json())
-      .catch(() => [])
-      .then((s) => !cancelled && setLoaded({ key: slotsKey, slots: Array.isArray(s) ? s : [] }));
-    return () => {
-      cancelled = true;
-    };
+      .catch((e) => (e.name === "AbortError" ? null : []))
+      .then((s) => s && setLoaded({ key: slotsKey, slots: Array.isArray(s) ? s : [] }));
+    return () => ctrl.abort();
   }, [serviceId, date, refresh, slotsKey]);
+
+  // Re-check availability whenever the customer returns to this tab.
+  useEffect(() => {
+    const onFocus = () => setRefresh((n) => n + 1);
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
 
   const chooseService = (id: string) => {
     setServiceId(id);

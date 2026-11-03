@@ -24,6 +24,12 @@ export const addDays = (date: string, n: number) => {
 
 export const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+export const fmtDuration = (min: number) => {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return [h && `${h} hr`, m && `${m} min`].filter(Boolean).join(" ");
+};
+
 export const fmt12 = (t: string) => {
   const [h, m] = t.split(":").map(Number);
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { rateLimit, clientKey } from "@/lib/rateLimit";
 import { getAvailableSlots } from "@/lib/availability";
 import { fmtDate, isValidDate } from "@/lib/time";
 
 export async function GET(req: Request) {
+  if (!rateLimit(`avail:${clientKey(req)}`, 120, 60_000)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const q = new URL(req.url).searchParams;
   const service = db.services.find((s) => s.id === q.get("serviceId"));
   const date = q.get("date") ?? "";

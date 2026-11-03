@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { denyUnlessAdmin } from "@/lib/auth";
 import { parseService, readJson } from "@/lib/validate";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Ctx) {
+  const denied = await denyUnlessAdmin(req);
+  if (denied) return denied;
   const { id } = await params;
   const idx = db.services.findIndex((s) => s.id === id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -14,7 +17,9 @@ export async function PUT(req: Request, { params }: Ctx) {
   return NextResponse.json(db.services[idx]);
 }
 
-export async function DELETE(_req: Request, { params }: Ctx) {
+export async function DELETE(req: Request, { params }: Ctx) {
+  const denied = await denyUnlessAdmin(req);
+  if (denied) return denied;
   const { id } = await params;
   const idx = db.services.findIndex((s) => s.id === id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
