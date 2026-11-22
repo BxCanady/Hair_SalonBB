@@ -1,4 +1,4 @@
-const CACHE = "salonbb-v1";
+const CACHE = "salonbb-v2";
 const PRECACHE = ["/", "/book", "/dashboard", "/offline", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -20,6 +20,14 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
+  // OAuth and password-recovery callbacks can carry one-time credentials in the query.
+  if (
+    url.pathname === "/auth/callback" ||
+    ["code", "access_token", "refresh_token", "error", "error_description"].some((key) => url.searchParams.has(key))
+  ) {
+    event.respondWith(fetch(req));
+    return;
+  }
   // API data is live (bookings, availability): never serve it from cache.
   if (url.pathname.startsWith("/api/")) return;
 

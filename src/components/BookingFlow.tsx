@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import type { Session } from "@supabase/supabase-js";
 import MonthGrid from "./MonthGrid";
 import Button from "./ui/Button";
+import CustomerAccount from "./CustomerAccount";
 import { addDays, fmt12, fmtDate, money } from "@/lib/time";
 import type { Appointment, Service, Slot, Staff } from "@/lib/types";
 
@@ -20,10 +22,26 @@ export default function BookingFlow() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [form, setForm] = useState({ customerName: "", customerEmail: "", customerPhone: "" });
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [applyVisitReward, setApplyVisitReward] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
   const [done, setDone] = useState<Appointment | null>(null);
+
+  const handleSessionChange = useCallback((session: Session | null) => {
+    setAccessToken(session?.access_token ?? null);
+    if (session?.user) {
+      const metadataName = session.user.user_metadata.full_name ?? session.user.user_metadata.name;
+      setForm((current) => ({
+        ...current,
+        customerEmail: session.user.email ?? current.customerEmail,
+        customerName: typeof metadataName === "string" ? metadataName : current.customerName,
+      }));
+    } else {
+      setApplyVisitReward(false);
+    }
+  }, []);
 
   useEffect(() => {
     Promise.all(["services", "staff"].map((p) => fetch(`/api/${p}`).then((r) => { if (!r.ok) throw new Error(); return r.json(); })))
@@ -78,8 +96,11 @@ export default function BookingFlow() {
     try {
       const res = await fetch("/api/appointments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceId, date, time, ...form }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ serviceId, date, time, ...form, applyVisitReward }),
       });
       const body = await res.json();
       if (!res.ok) {
@@ -101,6 +122,8 @@ export default function BookingFlow() {
   if (done) {
     const st = staff.find((s) => s.id === done.staffId);
     const sv = services.find((s) => s.id === done.serviceId);
+    const discount = done.discountCents ?? 0;
+    const total = Math.max(0, (sv?.priceCents ?? 0) - discount);
     return (
       <section aria-live="polite" className={`${card} mx-auto max-w-md text-center`}>
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl text-green-700">✓</div>
@@ -108,6 +131,8 @@ export default function BookingFlow() {
         <p className="mt-1 text-sm text-gray-600">Confirmation #{done.id}. A confirmation will be sent to {done.customerEmail}.</p>
         <dl className="mt-4 space-y-1 text-left text-sm">
           <Row k="Service" v={`${sv?.name} (${sv?.durationMin} min, ${money(sv?.priceCents ?? 0)})`} />
+          {discount > 0 && <Row k="Visit reward" v={`−${money(discount)}`} />}
+          {discount > 0 && <Row k="Estimated total" v={money(total)} />}
           <Row k="Stylist" v={st?.name ?? ""} />
           <Row k="Date" v={done.date} />
           <Row k="Time" v={fmt12(done.time)} />
@@ -123,6 +148,11 @@ export default function BookingFlow() {
   return (
     <div className="space-y-6">
       {loadError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{loadError}</p>}
+      <CustomerAccount
+        onSessionChange={handleSessionChange}
+        applyReward={applyVisitReward}
+        onApplyRewardChange={setApplyVisitReward}
+      />
 
       <section aria-labelledby="h-service">
         <h2 id="h-service" className="mb-2 text-lg font-semibold">1. Choose a service</h2>

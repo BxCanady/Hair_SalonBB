@@ -10,6 +10,7 @@ const badgeCls: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
   confirmed: "bg-green-100 text-green-800",
   cancelled: "bg-gray-200 text-gray-600",
+  completed: "bg-violet-100 text-violet-800",
 };
 
 export default function ScheduleTab({ services, stylist, appointments, reload }: { services: Service[]; stylist: Staff | null; appointments: Appointment[]; reload: () => Promise<void> }) {
@@ -94,19 +95,22 @@ function AppointmentCard({ a, services, stylist, act }: { a: Appointment; servic
   const [time, setTime] = useState(a.time);
   const sv = services.find((s) => s.id === a.serviceId);
   const st = stylist;
+  const discount = a.discountCents ?? 0;
+  const estimatedTotal = Math.max(0, (sv?.priceCents ?? 0) - discount);
   return (
     <li className={`${cardCls} text-sm ${a.status === "cancelled" ? "opacity-60" : ""}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{fmt12(a.time)}–{fmt12(toTime(toMinutes(a.time) + (sv?.durationMin ?? 0)))} · {sv?.name}</div>
           <div className="text-gray-600">{a.customerName} · {a.customerPhone}</div>
-          <div className="text-gray-500">{st?.name} · {money(sv?.priceCents ?? 0)}</div>
+          <div className="text-gray-500">{st?.name} · {money(sv?.priceCents ?? 0)}{discount > 0 ? ` − ${money(discount)} reward = ${money(estimatedTotal)}` : ""}</div>
         </div>
         <span className={`rounded-full px-2 py-0.5 text-xs ${badgeCls[a.status]}`}>{a.status}</span>
       </div>
-      {a.status !== "cancelled" && !editing && (
+      {a.status !== "cancelled" && a.status !== "completed" && !editing && (
         <div className="mt-2 flex flex-wrap gap-2">
           {a.status === "pending" && <Button size="sm" onClick={() => act(a.id, { status: "confirmed" })}>Accept</Button>}
+          <Button size="sm" variant="secondary" onClick={() => confirm("Mark this appointment as completed? This will count toward the customer's visit reward.") && act(a.id, { status: "completed" })}>Mark completed</Button>
           <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>Reschedule</Button>
           <Button size="sm" variant="danger" onClick={() => confirm("Cancel this appointment?") && act(a.id, { status: "cancelled" })}>Cancel</Button>
         </div>

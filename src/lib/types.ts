@@ -20,7 +20,7 @@ export type Staff = {
   workingHours: WorkingHours;
 };
 
-export type AppointmentStatus = "pending" | "confirmed" | "cancelled";
+export type AppointmentStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
 export type Appointment = {
   id: string;
@@ -31,6 +31,8 @@ export type Appointment = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerUserId?: string | null;
+  discountCents?: number;
   status: AppointmentStatus;
   createdAt: string;
 };

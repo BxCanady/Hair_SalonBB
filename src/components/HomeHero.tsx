@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -82,42 +83,74 @@ export default function HomeHero() {
   }, []);
 
   return (
-    <section className="grid grid-cols-2 items-center gap-3">
-      <div className="flex flex-col gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo/logo.png"
-          alt="Beast at Braid logo"
-          className=" relative top-[-40px] h-36 w-36 self-start rounded-full border-2 border-primary object-cover"
-        />
-      </div>
-      <div className="relative top-[70px] flex flex-col gap-3">
+    <section className="overflow-hidden rounded-3xl border border-white/10 bg-black/55 shadow-2xl backdrop-blur-sm">
+      <div className="grid md:grid-cols-[0.9fr_1.1fr]">
+        <div className="order-2 flex flex-col justify-center gap-5 p-6 md:order-1 md:p-10">
+        <div className="flex items-center gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo/logo.png"
+            alt="Beast at Braid logo"
+            className="h-20 w-20 rounded-full border-2 border-primary object-cover shadow-[0_0_22px_rgba(229,70,216,0.35)] md:h-24 md:w-24"
+          />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Greensboro, North Carolina</p>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-white/65">Custom braids • Micro locs • Short-hair grip</p>
+          <h1 className="text-4xl font-bold leading-[1.05] text-white md:text-5xl">
+            A crown made for <span className="text-primary">you.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-sm leading-6 text-white/75">
+            Clean, intentional installs with a look tailored to your texture, length, and lifestyle.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/book"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-black transition hover:bg-[#f052e5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Book Now
+          </Link>
+          <a
+            href="#lookbook"
+            className="rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-primary hover:bg-primary/10"
+          >
+            Explore looks
+          </a>
+        </div>
         <SocialIcons />
+        </div>
+
+        <div className="relative order-1 min-h-72 overflow-hidden md:order-2 md:min-h-[34rem]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/hero.png"
           alt="Braided hairstyle by Beast at Braid"
-          className="aspect-[4/5] w-full rounded-md border-2 border-secondary bg-surface object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/5 md:bg-gradient-to-r md:from-black/75 md:via-transparent md:to-black/5" />
+        <ul className="absolute inset-x-0 bottom-0 p-6 text-base font-semibold leading-snug text-white drop-shadow-lg md:p-8 md:text-lg">
+          {Array.from({ length: LINES }, (_, line) => (
+            <li key={line} className="relative h-[1.55em] overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={index}
+                  className="block truncate"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.4, delay: line * 0.08 }}
+                >
+                  {taglineSets[index][line]}
+                </motion.span>
+              </AnimatePresence>
+            </li>
+          ))}
+        </ul>
+        </div>
       </div>
-      <ul className=" relative top-[-100px] col-span-2 text-lg leading-snug text-foreground">
-        {Array.from({ length: LINES }, (_, line) => (
-          <li key={line} className="relative h-[1.4em] overflow-hidden">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={index}
-                className="block"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.4, delay: line * 0.08 }}
-              >
-                {taglineSets[index][line]}
-              </motion.span>
-            </AnimatePresence>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

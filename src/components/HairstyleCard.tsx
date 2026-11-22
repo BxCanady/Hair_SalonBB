@@ -23,7 +23,7 @@ export default function HairstyleCard({ hairstyle: h }: { hairstyle: Pick<Hairst
           href={bookHref(h.serviceId)}
           className="mt-2 rounded-lg bg-primary px-4 py-2 text-center text-sm font-semibold text-black transition hover:bg-[#f052e5]"
         >
-          Book This Style
+          Book This Look
         </Link>
       </div>
     </article>

@@ -4,6 +4,7 @@ import * as hairstyles from "@/app/api/hairstyles/route";
 import * as hairstyle from "@/app/api/hairstyles/[id]/route";
 import * as uploads from "@/app/api/uploads/route";
 import * as appointments from "@/app/api/appointments/route";
+import * as customerLoyalty from "@/app/api/customer/loyalty/route";
 import * as services from "@/app/api/services/route";
 
 const ADMIN = "admin-user-id";
@@ -145,5 +146,37 @@ describe("booking", () => {
     const statuses = [];
     for (let i = 0; i < 12; i++) statuses.push((await book(99, { serviceId: "nope" })).status);
     expect(statuses.at(-1)).toBe(429);
+  });
+
+  it("allows signed-in customers to book and ties the appointment to the verified user", async () => {
+    const date = nextMonday();
+    const res = await appointments.POST(json("/api/appointments", {
+      method: "POST",
+      token: "customer-token",
+      headers: { "x-forwarded-for": "10.0.0.71" },
+      body: JSON.stringify({
+        serviceId: "svc-cut",
+        date,
+        time: "14:00",
+        customerName: "Signed In",
+        customerEmail: "customer@example.com",
+        customerPhone: "555-123-4567",
+      }),
+    }));
+    expect(res.status).toBe(201);
+    expect(await res.json()).toMatchObject({ customerUserId: "someone-else", discountCents: 0 });
+  });
+
+  it("rejects an invalid bearer token instead of silently treating the request as a guest", async () => {
+    const res = await appointments.POST(json("/api/appointments", {
+      method: "POST",
+      token: "invalid-token",
+      body: JSON.stringify({ serviceId: "svc-cut", date: nextMonday(), time: "14:00", customerName: "A", customerEmail: "a@b.co", customerPhone: "555-123-4567" }),
+    }));
+    expect(res.status).toBe(401);
+  });
+
+  it("requires sign-in to check loyalty rewards", async () => {
+    expect((await customerLoyalty.GET(json("/api/customer/loyalty"))).status).toBe(401);
   });
 });

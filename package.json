@@ -13,9 +13,11 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
     "lucide-react": "^1.62.0",
     "motion": "^14.7.1",
     "next": "16.4.2",
+    "pg": "8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -28,6 +30,7 @@
     "@storybook/nextjs-vite": "^10.6.5",
     "@tailwindcss/turbopack": "^4",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/pg": "8.23.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
