@@ -39,11 +39,16 @@ The program awards $10 off after every five completed appointments. The owner ma
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used to upload hairstyle images.
 - `DIRECT_URL`: Supabase Session pooler connection string used by loyalty reads and reward transactions.
 - `DATABASE_URL`: Supabase direct connection string used by Prisma and database migration tooling.
-- `PINTEREST_ACCESS_TOKEN` and `PINTEREST_BOARD_ID`: optional server-only Pinterest board integration. Without both, the homepage uses local fallback cards.
+- `SERPAPI_API_KEY`: Google Images discovery provider used for weekly hairstyle rankings.
+- `CRON_SECRET`: random 16+ character bearer secret for Vercel's Sunday trend refresh.
 
 After setting these values, create a public Supabase Storage bucket named `hairstyles`, apply
 `supabase/migrations/20261116040008_customer_visit_rewards.sql`, and configure the Supabase Auth site URL and
 redirect allowlist for `/book`.
+
+Apply `supabase/migrations/20261124042639_create_trending_styles.sql` before enabling trend discovery. Vercel
+runs `GET /api/update-trends` every Sunday at 08:00 UTC. The endpoint queries SerpAPI Google Images, deduplicates
+hairstyles, scores `100 - position + occurrence count × 10`, and upserts the results.
 
 ### API
 

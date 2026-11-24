@@ -1,3 +1,5 @@
+import { normalizeSupabaseUrl } from "./supabaseUrl";
+
 const TOKEN_KEY = "salon-admin-token";
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
@@ -23,7 +25,7 @@ export async function signIn(email: string, password: string): Promise<string | 
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!base || !anon) return "Admin sign-in is not configured";
   try {
-    const res = await fetch(`${base.replace(/\/$/, "")}/auth/v1/token?grant_type=password`, {
+    const res = await fetch(`${normalizeSupabaseUrl(base)}/auth/v1/token?grant_type=password`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: anon },
       body: JSON.stringify({ email, password }),

@@ -1,10 +1,12 @@
+import { normalizeSupabaseUrl } from "./supabaseUrl";
+
 export const HAIRSTYLE_BUCKET = "hairstyles";
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 const EXT_BY_MIME = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
 type ImageMime = keyof typeof EXT_BY_MIME;
 
-const supabaseUrl = () => process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
+const supabaseUrl = () => normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 /** Public URL prefix that uploaded hairstyle photos live under. */
 export const publicPrefix = () => `${supabaseUrl()}/storage/v1/object/public/${HAIRSTYLE_BUCKET}/`;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { normalizeSupabaseUrl } from "./supabaseUrl";
 
-const supabaseUrl = () => process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
+const supabaseUrl = () => normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const anonKey = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const adminIds = () => (process.env.ADMIN_USER_IDS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 

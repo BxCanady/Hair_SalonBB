@@ -65,3 +65,16 @@ model Appointment {
 
   @@index([staffId, date])
 }
+
+model TrendingStyle {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  imageUrl       String?  @map("image_url")
+  sourceUrl      String?  @map("source_url")
+  googlePosition Int?     @map("google_position")
+  trendScore     Int      @default(0) @map("trend_score")
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("trending_styles")
+  @@index([trendScore(sort: Desc), updatedAt(sort: Desc)])
+}

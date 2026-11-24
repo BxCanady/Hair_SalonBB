@@ -11,10 +11,19 @@ import type { Appointment, Service, Slot, Staff } from "@/lib/types";
 const input = "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200";
 const card = "rounded-2xl border border-gray-200 bg-white p-4 shadow-sm";
 
-const pinterestServiceIds: Record<string, string> = {
+const trendServiceIds: Record<string, string> = {
   "Micro Locs": "svc-style",
   "Custom Braided Perfection": "svc-style",
   "Short Hair Gripper": "svc-cut",
+  "Knotless Braids": "svc-style",
+  "Boho Braids": "svc-style",
+  "Fulani Braids": "svc-style",
+  "Stitch Braids": "svc-style",
+  "Butterfly Locs": "svc-style",
+  "Soft Locs": "svc-style",
+  "Passion Twists": "svc-style",
+  "Silk Press": "svc-style",
+  "Micro Twists": "svc-style",
 };
 
 export default function BookingFlow() {
@@ -25,7 +34,7 @@ export default function BookingFlow() {
   const preselectedName = searchParams.get("service") ?? "";
   const preselected =
     searchParams.get("serviceId") ??
-    pinterestServiceIds[preselectedName] ??
+    trendServiceIds[preselectedName] ??
     "";
   const [serviceId, setServiceId] = useState(preselected);
   const today = fmtDate(new Date());
