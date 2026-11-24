@@ -11,11 +11,22 @@ import type { Appointment, Service, Slot, Staff } from "@/lib/types";
 const input = "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200";
 const card = "rounded-2xl border border-gray-200 bg-white p-4 shadow-sm";
 
+const pinterestServiceIds: Record<string, string> = {
+  "Micro Locs": "svc-style",
+  "Custom Braided Perfection": "svc-style",
+  "Short Hair Gripper": "svc-cut",
+};
+
 export default function BookingFlow() {
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loadError, setLoadError] = useState("");
-  const preselected = useSearchParams().get("serviceId") ?? "";
+  const searchParams = useSearchParams();
+  const preselectedName = searchParams.get("service") ?? "";
+  const preselected =
+    searchParams.get("serviceId") ??
+    pinterestServiceIds[preselectedName] ??
+    "";
   const [serviceId, setServiceId] = useState(preselected);
   const today = fmtDate(new Date());
   const [month, setMonth] = useState(today);
@@ -52,23 +63,24 @@ export default function BookingFlow() {
       .catch(() => setLoadError("Could not load salon data. Please check your connection."));
   }, []);
 
-  const service = services.find((s) => s.id === serviceId);
+  const selectedServiceId = serviceId;
+  const service = services.find((s) => s.id === selectedServiceId);
   const categories = useMemo(() => [...new Set(services.map((s) => s.category))], [services]);
 
-  const slotsKey = `${serviceId}|${date}|${refresh}`;
+  const slotsKey = `${selectedServiceId}|${date}|${refresh}`;
   const [loaded, setLoaded] = useState({ key: "", slots: [] as Slot[] });
-  const slotsLoading = !!serviceId && !!date && loaded.key !== slotsKey;
+  const slotsLoading = !!selectedServiceId && !!date && loaded.key !== slotsKey;
   const slots = loaded.key === slotsKey ? loaded.slots : [];
 
   useEffect(() => {
-    if (!serviceId || !date) return;
+    if (!selectedServiceId || !date) return;
     const ctrl = new AbortController();
-    fetch(`/api/availability?serviceId=${encodeURIComponent(serviceId)}&date=${date}`, { signal: ctrl.signal })
+    fetch(`/api/availability?serviceId=${encodeURIComponent(selectedServiceId)}&date=${date}`, { signal: ctrl.signal })
       .then((r) => r.json())
       .catch((e) => (e.name === "AbortError" ? null : []))
       .then((s) => s && setLoaded({ key: slotsKey, slots: Array.isArray(s) ? s : [] }));
     return () => ctrl.abort();
-  }, [serviceId, date, refresh, slotsKey]);
+  }, [selectedServiceId, date, refresh, slotsKey]);
 
   // Re-check availability whenever the customer returns to this tab.
   useEffect(() => {
@@ -100,7 +112,7 @@ export default function BookingFlow() {
           "Content-Type": "application/json",
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ serviceId, date, time, ...form, applyVisitReward }),
+        body: JSON.stringify({ serviceId: selectedServiceId, date, time, ...form, applyVisitReward }),
       });
       const body = await res.json();
       if (!res.ok) {
@@ -164,9 +176,9 @@ export default function BookingFlow() {
                 <button
                   key={s.id}
                   type="button"
-                  aria-pressed={serviceId === s.id}
+                  aria-pressed={selectedServiceId === s.id}
                   onClick={() => chooseService(s.id)}
-                  className={`${card} text-left transition hover:border-violet-400 ${serviceId === s.id ? "border-violet-600 ring-2 ring-violet-200" : ""}`}
+                  className={`${card} text-left transition hover:border-violet-400 ${selectedServiceId === s.id ? "border-violet-600 ring-2 ring-violet-200" : ""}`}
                 >
                   <div className="flex justify-between font-medium"><span>{s.name}</span><span>{money(s.priceCents)}</span></div>
                   <div className="text-sm text-gray-500">{s.durationMin} min · {s.description}</div>

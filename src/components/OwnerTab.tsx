@@ -1,35 +1,35 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api, Button, cardCls, inputCls } from "./ui";
-import type { Service, Staff, WorkingHours } from "@/lib/types";
+import type { Service, Staff } from "@/lib/types";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const defaultHours = (): WorkingHours => DAYS.map((_, i) => (i === 0 ? null : { start: "09:00", end: "17:00" }));
-const blank = { name: "", role: "Owner & Stylist", email: "", serviceIds: [] as string[], workingHours: defaultHours() };
 
 export default function OwnerTab({ owner, services, reload }: { owner: Staff | null; services: Service[]; reload: () => Promise<void> }) {
-  const [form, setForm] = useState(blank);
+  if (!owner) return <p role="alert" className="text-sm text-red-600">Owner profile is unavailable.</p>;
+  const key = `${owner.id}:${JSON.stringify(owner.workingHours)}:${owner.serviceIds.join(",")}:${owner.name}:${owner.role}:${owner.email}`;
+  return <OwnerForm key={key} owner={owner} services={services} reload={reload} />;
+}
+
+function OwnerForm({ owner, services, reload }: { owner: Staff; services: Service[]; reload: () => Promise<void> }) {
+  const [form, setForm] = useState(() => ({
+    name: owner.name,
+    role: owner.role,
+    email: owner.email,
+    serviceIds: [...owner.serviceIds],
+    workingHours: owner.workingHours.map((hours) => (hours ? { ...hours } : null)),
+  }));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (owner) {
-      setForm({
-        name: owner.name,
-        role: owner.role,
-        email: owner.email,
-        serviceIds: owner.serviceIds,
-        workingHours: owner.workingHours.map((hours) => (hours ? { ...hours } : null)),
-      });
-    }
-  }, [owner]);
-
   const setDay = (index: number, hours: { start: string; end: string } | null) =>
-    setForm({ ...form, workingHours: form.workingHours.map((current, day) => (day === index ? hours : current)) });
+    setForm((current) => ({
+      ...current,
+      workingHours: current.workingHours.map((currentHours, day) => (day === index ? hours : currentHours)),
+    }));
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    if (!owner) return;
     setSaving(true);
     setError("");
     const message = await api(`/api/staff/${owner.id}`, "PUT", form);
@@ -37,8 +37,6 @@ export default function OwnerTab({ owner, services, reload }: { owner: Staff | n
     else await reload();
     setSaving(false);
   }
-
-  if (!owner) return <p role="alert" className="text-sm text-red-600">Owner profile is unavailable.</p>;
 
   return (
     <section className="space-y-3">

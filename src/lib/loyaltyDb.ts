@@ -10,7 +10,7 @@ function getPool(): Pool {
     max: 2,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 10000,
-    ssl: true,
+    ssl: { rejectUnauthorized: false },
   });
   return globalForPg.__salonLoyaltyPool;
 }

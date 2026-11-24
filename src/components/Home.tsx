@@ -1,16 +1,18 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import HomeHero from "./HomeHero";
 import HomeVideo from "./HomeVideo";
 import HairstyleCarousel from "./HairstyleCarousel";
 import HomeInfo from "./HomeInfo";
 
-export default function Home() {
+export default function Home({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-screen">
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-3 py-4 md:gap-12 md:px-6 md:py-8">
         <HomeHero />
         <HomeVideo />
         <HairstyleCarousel />
+        {children}
         <HomeInfo />
         <section className="rounded-3xl border border-primary/30 bg-gradient-to-br from-black/80 to-[#351047] p-6 text-center md:p-10">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Ready when you are</p>

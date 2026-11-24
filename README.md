@@ -32,6 +32,19 @@ Copy `.env.example` to `.env` and configure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PU
 
 The program awards $10 off after every five completed appointments. The owner marks completed appointments in the dashboard. Reward visit and redemption events are persisted in the Postgres tables from `supabase/migrations/`; apply and verify that migration before using the reward feature. RLS is enabled, with no client policies; only server-side database connections can access these tables.
 
+### Required production environment
+
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: customer and owner sign-in.
+- `ADMIN_USER_IDS`: comma-separated Supabase Auth user IDs allowed into the owner dashboard and admin APIs.
+- `SUPABASE_SERVICE_ROLE_KEY`: server-only key used to upload hairstyle images.
+- `DIRECT_URL`: Supabase Session pooler connection string used by loyalty reads and reward transactions.
+- `DATABASE_URL`: Supabase direct connection string used by Prisma and database migration tooling.
+- `PINTEREST_ACCESS_TOKEN` and `PINTEREST_BOARD_ID`: optional server-only Pinterest board integration. Without both, the homepage uses local fallback cards.
+
+After setting these values, create a public Supabase Storage bucket named `hairstyles`, apply
+`supabase/migrations/20261116040008_customer_visit_rewards.sql`, and configure the Supabase Auth site URL and
+redirect allowlist for `/book`.
+
 ### API
 
 | Method | Endpoint | Access |
