@@ -27,6 +27,23 @@ export async function getCustomerVisitRewards(userId: string) {
   return getVisitRewardProgress(Number(row.completed_visits), Number(row.rewards_redeemed));
 }
 
+export async function getCustomerVisitHistory(userId: string) {
+  const { rows } = await getPool().query<{
+    appointment_id: string;
+    completed_at: Date;
+  }>(
+    `SELECT appointment_id, completed_at
+     FROM public.customer_loyalty_visits
+     WHERE user_id = $1
+     ORDER BY completed_at DESC`,
+    [userId],
+  );
+  return rows.map((row) => ({
+    appointmentId: row.appointment_id,
+    completedAt: new Date(row.completed_at).toISOString(),
+  }));
+}
+
 export async function recordCompletedVisit(userId: string, appointmentId: string): Promise<void> {
   await getPool().query(
     `INSERT INTO public.customer_loyalty_visits (appointment_id, user_id)

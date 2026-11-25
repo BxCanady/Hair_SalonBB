@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { VISITS_PER_REWARD, VISIT_REWARD_CENTS, type VisitRewardProgress } from "@/lib/loyalty";
 import { getSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import ClientProfile from "./ClientProfile";
 
 type Props = {
   onSessionChange: (session: Session | null) => void;
@@ -227,6 +228,9 @@ export default function CustomerAccount({
   }
 
   if (session?.user) {
+    if (standalone) {
+      return <ClientProfile session={session} onSignOut={signOut} />;
+    }
     const name = fullName || session.user.email || "customer";
     return (
       <section className="space-y-3 rounded-2xl border border-primary/70 bg-surface p-4 text-foreground" aria-label="Customer account">
