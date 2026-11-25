@@ -10,6 +10,8 @@ type Props = {
   onSessionChange: (session: Session | null) => void;
   applyReward: boolean;
   onApplyRewardChange: (apply: boolean) => void;
+  initialMode?: Mode;
+  standalone?: boolean;
 };
 
 type Mode = "closed" | "signin" | "signup" | "guest" | "update";
@@ -17,10 +19,16 @@ type Mode = "closed" | "signin" | "signup" | "guest" | "update";
 const field = "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200";
 const button = "rounded-lg px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
 
-export default function CustomerAccount({ onSessionChange, applyReward, onApplyRewardChange }: Props) {
+export default function CustomerAccount({
+  onSessionChange,
+  applyReward,
+  onApplyRewardChange,
+  initialMode = "closed",
+  standalone = false,
+}: Props) {
   const authUnavailable = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const [session, setSession] = useState<Session | null>(null);
-  const [mode, setMode] = useState<Mode>("closed");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -283,9 +291,11 @@ export default function CustomerAccount({ onSessionChange, applyReward, onApplyR
           <button type="button" className={`${button} border border-primary text-primary hover:bg-primary/10`} onClick={signInWithGoogle} disabled={busy}>
             Continue with Google
           </button>
-          <button type="button" className={`${button} border border-border text-foreground hover:bg-white/5`} onClick={() => setMode("guest")}>
-            Continue as guest
-          </button>
+          {!standalone && (
+            <button type="button" className={`${button} border border-border text-foreground hover:bg-white/5`} onClick={() => setMode("guest")}>
+              Continue as guest
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -318,9 +328,11 @@ export default function CustomerAccount({ onSessionChange, applyReward, onApplyR
               Continue with Google
             </button>
           </form>
-          <button type="button" className="text-sm text-foreground/70 underline" onClick={() => { setMode("guest"); setAuthError(""); }}>
-            Continue as guest instead
-          </button>
+          {!standalone && (
+            <button type="button" className="text-sm text-foreground/70 underline" onClick={() => { setMode("guest"); setAuthError(""); }}>
+              Continue as guest instead
+            </button>
+          )}
         </>
       )}
       {notice && <p role="status" className="text-sm text-green-300">{notice}</p>}

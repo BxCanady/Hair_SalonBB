@@ -21,7 +21,7 @@ const navItems = [
   },
   {
     label: "Login",
-    href: "/dashboard",
+    href: "/login",
     icon: User,
   },
 ];

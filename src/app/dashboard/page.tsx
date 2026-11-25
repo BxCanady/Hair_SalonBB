@@ -8,7 +8,7 @@ export default function DashboardPage() {
     <main className="mx-auto w-full max-w-5xl px-4 py-6">
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-violet-700">Owner dashboard</h1>
-        <a href="/book" className="text-sm text-gray-500 underline">Customer booking page</a>
+        <a href="/login" className="text-sm text-gray-500 underline">Client login</a>
       </header>
       <Suspense fallback={<p className="text-gray-500">Loading…</p>}>
         <Dashboard />

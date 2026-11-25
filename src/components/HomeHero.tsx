@@ -123,15 +123,15 @@ export default function HomeHero() {
         <SocialIcons />
         </div>
 
-        <div className="relative order-1 min-h-72 overflow-hidden md:order-2 md:min-h-[34rem]">
+        <div className="relative order-1 aspect-[16/11] overflow-hidden bg-black md:order-2 md:aspect-auto md:min-h-[34rem]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/hero.png"
           alt="Braided hairstyle by Beast at Braid"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain md:object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/5 md:bg-gradient-to-r md:from-black/75 md:via-transparent md:to-black/5" />
-        <ul className="absolute inset-x-0 bottom-0 p-6 text-base font-semibold leading-snug text-white drop-shadow-lg md:p-8 md:text-lg">
+        <ul className="absolute inset-x-0 bottom-0 px-4 py-3 text-xs font-semibold leading-tight text-white drop-shadow-lg sm:text-sm md:p-8 md:text-lg md:leading-snug">
           {Array.from({ length: LINES }, (_, line) => (
             <li key={line} className="relative h-[1.55em] overflow-hidden">
               <AnimatePresence mode="wait" initial={false}>
