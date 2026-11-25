@@ -1,4 +1,5 @@
 import type { GoogleImageResult } from "./serpApiImages";
+import { isSafeImageUrl } from "./imageCandidates";
 
 export const CANONICAL_STYLES = [
   { name: "Knotless Braids", terms: ["knotless"] },
@@ -15,6 +16,7 @@ export const CANONICAL_STYLES = [
 export type RankedStyle = {
   name: string;
   image_url: string | null;
+  thumbnail_url: string | null;
   source_url: string | null;
   google_position: number;
   trend_score: number;
@@ -25,6 +27,7 @@ export function isAllowedTrendImage(
   result: Pick<GoogleImageResult, "imageUrl" | "sourceUrl">,
 ): boolean {
   try {
+    if (!isSafeImageUrl(result.imageUrl) || !isSafeImageUrl(result.sourceUrl)) return false;
     const hosts = [new URL(result.imageUrl).hostname, new URL(result.sourceUrl).hostname]
       .map((host) => host.toLowerCase());
     return hosts.every(
@@ -61,6 +64,7 @@ export function rankImageResults(results: GoogleImageResult[], updatedAt = new D
       return {
         name,
         image_url: best?.imageUrl ?? null,
+        thumbnail_url: best?.thumbnailUrl ?? null,
         source_url: best?.sourceUrl ?? null,
         google_position: best?.position ?? 100,
         trend_score: calculateTrendScore(best?.position ?? 100, matches.length),

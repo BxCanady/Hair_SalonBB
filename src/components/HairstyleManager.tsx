@@ -1,7 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import HairstyleCard from "./HairstyleCard";
-import { api, Button, cardCls, inputCls } from "./ui";
+import FallbackImage from "./FallbackImage";
+import { api, Button } from "./ui";
 import { authHeaders } from "@/lib/adminClient";
 import type { Hairstyle, Service } from "@/lib/types";
 
@@ -16,6 +17,10 @@ type Form = {
 };
 
 const blank: Form = { title: "", description: "", imageUrl: "", serviceId: "", priceDollars: 0, durationMin: 60, isPublished: false };
+const field =
+  "mt-1.5 w-full min-h-11 rounded-xl border border-white/15 bg-black/35 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-primary focus:ring-2 focus:ring-primary/20";
+const action =
+  "inline-flex min-h-9 items-center justify-center rounded-lg border border-white/15 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-white transition hover:border-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-35";
 
 export default function HairstyleManager({ services }: { services: Service[] }) {
   const [items, setItems] = useState<Hairstyle[]>([]);
@@ -99,62 +104,126 @@ export default function HairstyleManager({ services }: { services: Service[] }) 
   }
 
   return (
-    <div className="space-y-3">
-      <Button size="sm" onClick={() => edit()}>Add hairstyle</Button>
-      {err && <p role="alert" className="text-sm text-red-600">{err}</p>}
+    <section className="space-y-4">
+      <div className="flex flex-col gap-3 rounded-2xl bg-gradient-to-r from-secondary to-primary p-px sm:flex-row sm:items-center sm:justify-between">
+        <div className="rounded-[15px] bg-[#13091f] px-4 py-3 sm:rounded-r-none">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Customer lookbook</p>
+          <h2 className="mt-1 text-xl font-bold text-white">Hairstyles</h2>
+          <p className="mt-1 text-sm leading-5 text-white/65">Add styles, link services, and control what customers see.</p>
+        </div>
+        <div className="px-4 pb-3 sm:pb-0 sm:pr-4">
+          <Button onClick={() => edit()} className="min-h-11 w-full sm:w-auto">Add hairstyle</Button>
+        </div>
+      </div>
+      {err && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-950/40 p-3 text-sm text-red-200">{err}</p>}
 
       {editId && (
-        <form onSubmit={save} className={`${cardCls} grid gap-3 sm:grid-cols-2`}>
-          <label className="text-sm">Title<input required maxLength={100} className={inputCls} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></label>
-          <label className="text-sm">Linked service
-            <select className={inputCls} value={f.serviceId} onChange={(e) => setF({ ...f, serviceId: e.target.value })}>
-              <option value="">None</option>
-              {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </label>
-          <label className="text-sm">Starting price ($)<input type="number" min={0} step="0.01" required className={inputCls} value={f.priceDollars} onChange={(e) => setF({ ...f, priceDollars: Number(e.target.value) })} /></label>
-          <label className="text-sm">Duration (min)<input type="number" min={15} step={15} required className={inputCls} value={f.durationMin} onChange={(e) => setF({ ...f, durationMin: Number(e.target.value) })} /></label>
-          <label className="text-sm sm:col-span-2">Description<textarea maxLength={500} rows={2} className={inputCls} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></label>
-          <label className="text-sm sm:col-span-2">Photo (JPEG, PNG or WebP, up to 5 MB)
-            <input type="file" accept="image/jpeg,image/png,image/webp" className={inputCls} disabled={uploading} onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-          </label>
-          {uploading && <p className="text-sm text-gray-500 sm:col-span-2">Uploading…</p>}
-          <label className="flex items-center gap-2 text-sm sm:col-span-2">
-            <input type="checkbox" checked={f.isPublished} onChange={(e) => setF({ ...f, isPublished: e.target.checked })} /> Published (visible to customers)
-          </label>
-          {f.imageUrl && (
-            <div className="sm:col-span-2">
-              <p className="mb-1 text-sm text-gray-500">Customer preview</p>
-              <div className="w-56"><HairstyleCard hairstyle={{ ...f, priceCents: Math.round(f.priceDollars * 100), serviceId: f.serviceId || null }} /></div>
+        <form onSubmit={save} className="grid gap-5 rounded-2xl border border-white/10 bg-[#171017] p-4 shadow-xl sm:p-6 lg:grid-cols-[1fr_18rem]">
+          <div className="space-y-5">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block text-sm font-semibold text-white">
+                Title
+                <input required maxLength={100} className={field} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} />
+              </label>
+              <label className="block text-sm font-semibold text-white">
+                Linked service
+                <select className={`${field} [color-scheme:dark]`} value={f.serviceId} onChange={(e) => setF({ ...f, serviceId: e.target.value })}>
+                  <option value="">None</option>
+                  {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </label>
+              <label className="block text-sm font-semibold text-white">
+                Starting price ($)
+                <input type="number" min={0} step="0.01" required className={field} value={f.priceDollars} onChange={(e) => setF({ ...f, priceDollars: Number(e.target.value) })} />
+              </label>
+              <label className="block text-sm font-semibold text-white">
+                Duration (min)
+                <input type="number" min={15} step={15} required className={field} value={f.durationMin} onChange={(e) => setF({ ...f, durationMin: Number(e.target.value) })} />
+              </label>
             </div>
-          )}
-          <div className="flex gap-2 sm:col-span-2">
-            <Button size="sm" type="submit" disabled={uploading || !f.imageUrl}>Save</Button>
-            <Button size="sm" variant="ghost" onClick={() => setEditId(null)}>Cancel</Button>
+            <label className="block text-sm font-semibold text-white">
+              Description
+              <textarea maxLength={500} rows={3} className={`${field} resize-y`} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
+            </label>
+            <label className="block text-sm font-semibold text-white">
+              Photo
+              <span className="mt-1 block text-xs font-normal text-white/50">JPEG, PNG or WebP, up to 5 MB</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className={`${field} file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-black`}
+                disabled={uploading}
+                onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+              />
+            </label>
+            {uploading && <p className="text-sm text-primary">Uploading photo…</p>}
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white">
+              <input type="checkbox" className="h-4 w-4 accent-[#e546d8]" checked={f.isPublished} onChange={(e) => setF({ ...f, isPublished: e.target.checked })} />
+              Publish this hairstyle to the customer lookbook
+            </label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="submit" disabled={uploading || !f.imageUrl} className="min-h-11">Save hairstyle</Button>
+              <Button variant="ghost" onClick={() => setEditId(null)} className="min-h-11">Cancel</Button>
+            </div>
           </div>
+          <aside className="rounded-xl border border-white/10 bg-black/25 p-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Customer preview</p>
+            {f.imageUrl ? (
+              <HairstyleCard hairstyle={{ ...f, priceCents: Math.round(f.priceDollars * 100), serviceId: f.serviceId || null }} />
+            ) : (
+              <div className="flex aspect-[4/5] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.03] px-6 text-center text-sm leading-6 text-white/45">
+                Upload a photo to preview this look.
+              </div>
+            )}
+          </aside>
         </form>
       )}
 
-      <ul className="space-y-2">
-        {items.map((h, i) => (
-          <li key={h.id} className={`${cardCls} flex items-center gap-3 text-sm`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={h.imageUrl} alt={`${h.title} thumbnail`} className="h-16 w-12 shrink-0 rounded-lg object-cover" />
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-semibold">{h.title} {!h.isPublished && <span className="font-normal text-gray-500">· Draft</span>}</div>
-              <div className="text-gray-500">${(h.priceCents / 100).toFixed(2)} · {h.durationMin} min</div>
-            </div>
-            <div className="flex flex-wrap justify-end gap-1">
-              <Button size="sm" variant="ghost" aria-label={`Move ${h.title} up`} disabled={i === 0} onClick={() => move(i, -1)}>↑</Button>
-              <Button size="sm" variant="ghost" aria-label={`Move ${h.title} down`} disabled={i === items.length - 1} onClick={() => move(i, 1)}>↓</Button>
-              <Button size="sm" variant="ghost" onClick={() => patch(h, { isPublished: !h.isPublished })}>{h.isPublished ? "Unpublish" : "Publish"}</Button>
-              <Button size="sm" variant="ghost" onClick={() => edit(h)}>Edit</Button>
-              <Button size="sm" variant="danger" onClick={() => remove(h)}>Delete</Button>
-            </div>
-          </li>
-        ))}
-        {items.length === 0 && <li className="text-sm text-gray-500">No hairstyles yet.</li>}
-      </ul>
-    </div>
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-bold text-white">Lookbook styles</h3>
+          <span className="text-sm text-white/50">{items.length} total</span>
+        </div>
+        <ul className="space-y-3">
+          {items.map((h, i) => (
+            <li key={h.id} className="rounded-2xl border border-white/10 bg-[#171017] p-3 shadow-lg sm:p-4">
+              <div className="flex gap-3">
+                <FallbackImage
+                  src={h.imageUrl}
+                  title={h.title}
+                  alternativeUrls={h.imageAlternativeUrls}
+                  alt={`${h.title} thumbnail`}
+                  className="h-20 w-16 shrink-0 rounded-xl object-cover sm:h-24 sm:w-20"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="truncate font-bold text-white">{h.title}</h4>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      h.isPublished ? "bg-green-500/15 text-green-300" : "bg-white/10 text-white/50"
+                    }`}>
+                      {h.isPublished ? "Published" : "Draft"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-white/60">${(h.priceCents / 100).toFixed(2)} · {h.durationMin} min</p>
+                  {h.description && <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/40">{h.description}</p>}
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
+                <button type="button" className={action} aria-label={`Move ${h.title} up`} disabled={i === 0} onClick={() => move(i, -1)}>↑ Move up</button>
+                <button type="button" className={action} aria-label={`Move ${h.title} down`} disabled={i === items.length - 1} onClick={() => move(i, 1)}>↓ Move down</button>
+                <button type="button" className={action} onClick={() => patch(h, { isPublished: !h.isPublished })}>{h.isPublished ? "Unpublish" : "Publish"}</button>
+                <button type="button" className={action} onClick={() => edit(h)}>Edit</button>
+                <button type="button" className={`${action} border-red-500/25 text-red-200 hover:border-red-400 hover:bg-red-950/40`} onClick={() => remove(h)}>Delete</button>
+              </div>
+            </li>
+          ))}
+          {items.length === 0 && (
+            <li className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center text-sm text-white/50">
+              No hairstyles yet. Add the first look to start your customer gallery.
+            </li>
+          )}
+        </ul>
+      </div>
+    </section>
   );
 }

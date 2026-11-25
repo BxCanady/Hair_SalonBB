@@ -91,7 +91,7 @@ export default function HomeHero() {
           <img
             src="/images/logo/logo.png"
             alt="Beast at Braid logo"
-            className="h-20 w-20 rounded-full border-2 border-primary object-cover shadow-[0_0_22px_rgba(229,70,216,0.35)] md:h-24 md:w-24"
+            className="h-28 w-28 shrink-0 rounded-full border-2 border-primary object-cover shadow-[0_0_28px_rgba(229,70,216,0.4)] md:h-36 md:w-36"
           />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Greensboro, North Carolina</p>
         </div>

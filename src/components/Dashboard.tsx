@@ -4,11 +4,12 @@ import ScheduleTab from "./ScheduleTab";
 import OwnerTab from "./OwnerTab";
 import ServicesTab from "./ServicesTab";
 import HairstyleManager from "./HairstyleManager";
+import InquiriesTab from "./InquiriesTab";
 import AdminLogin, { useAdminToken } from "./AdminLogin";
 import { authHeaders, clearToken } from "@/lib/adminClient";
 import type { Appointment, Service, Staff } from "@/lib/types";
 
-const tabs = ["Schedule", "Owner profile", "Services", "Hairstyles"] as const;
+const tabs = ["Schedule", "Inquiries", "Owner profile", "Services", "Hairstyles"] as const;
 
 class AuthError extends Error {}
 
@@ -77,6 +78,7 @@ function DashboardContent() {
       </div>
       <div role="tabpanel">
         {tab === "Schedule" && <ScheduleTab services={services} stylist={staff[0] ?? null} appointments={appointments} reload={load} />}
+        {tab === "Inquiries" && <InquiriesTab />}
         {tab === "Owner profile" && <OwnerTab services={services} owner={staff[0] ?? null} reload={load} />}
         {tab === "Services" && <ServicesTab services={services} reload={load} />}
         {tab === "Hairstyles" && <HairstyleManager services={services} />}

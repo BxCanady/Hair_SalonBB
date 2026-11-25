@@ -70,6 +70,9 @@ model TrendingStyle {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String   @unique
   imageUrl       String?  @map("image_url")
+  thumbnailUrl   String?  @map("thumbnail_url")
+  imageCandidates Json    @default("[]") @map("image_candidates")
+  imageCandidatesUpdatedAt DateTime? @map("image_candidates_updated_at") @db.Timestamptz(6)
   sourceUrl      String?  @map("source_url")
   googlePosition Int?     @map("google_position")
   trendScore     Int      @default(0) @map("trend_score")
@@ -77,4 +80,20 @@ model TrendingStyle {
 
   @@map("trending_styles")
   @@index([trendScore(sort: Desc), updatedAt(sort: Desc)])
+}
+
+model StyleInquiry {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  styleName     String   @map("style_name")
+  customerName  String   @map("customer_name")
+  customerEmail String   @map("customer_email")
+  customerPhone String   @map("customer_phone")
+  message       String   @default("")
+  sourceUrl     String?  @map("source_url")
+  status        String   @default("new")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("style_inquiries")
+  @@index([status, createdAt(sort: Desc)])
 }

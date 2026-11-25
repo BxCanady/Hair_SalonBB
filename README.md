@@ -39,16 +39,19 @@ The program awards $10 off after every five completed appointments. The owner ma
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used to upload hairstyle images.
 - `DIRECT_URL`: Supabase Session pooler connection string used by loyalty reads and reward transactions.
 - `DATABASE_URL`: Supabase direct connection string used by Prisma and database migration tooling.
-- `SERPAPI_API_KEY`: Google Images discovery provider used for weekly hairstyle rankings.
+- `SERPAPI_API_KEY`: Google Images discovery provider used for weekly hairstyle rankings and licensed fallback images.
+- `SERPAPI_IMAGE_CACHE_TTL_HOURS`: optional alternative-image cache lifetime (default `168`).
+- `SERPAPI_REQUEST_TIMEOUT_MS`: optional SerpApi request timeout in milliseconds (default `8000`).
 - `CRON_SECRET`: random 16+ character bearer secret for Vercel's Sunday trend refresh.
 
 After setting these values, create a public Supabase Storage bucket named `hairstyles`, apply
 `supabase/migrations/20261116040008_customer_visit_rewards.sql`, and configure the Supabase Auth site URL and
 redirect allowlist for `/book`.
 
-Apply `supabase/migrations/20261124042639_create_trending_styles.sql` before enabling trend discovery. Vercel
-runs `GET /api/update-trends` every Sunday at 08:00 UTC. The endpoint queries SerpAPI Google Images, deduplicates
-hairstyles, scores `100 - position + occurrence count × 10`, and upserts the results.
+Apply the migrations in `supabase/migrations/` before enabling trend discovery. Vercel runs
+`GET /api/update-trends` every Sunday at 08:00 UTC. The endpoint preserves the existing trend ranking, then discovers
+3–5 title-relevant, commercially reusable image alternatives where available. Alternatives are cached per
+hairstyle until `SERPAPI_IMAGE_CACHE_TTL_HOURS` expires, and clients never call SerpApi or receive its credentials.
 
 ### API
 
@@ -61,6 +64,8 @@ hairstyles, scores `100 - position + occurrence count × 10`, and upserts the re
 | PATCH / DELETE | `/api/hairstyles/[id]` | Admin |
 | POST | `/api/uploads` (multipart `file`; JPEG/PNG/WebP ≤ 5 MB, content sniffed) | Admin |
 | GET | `/api/services`, `/api/staff`, `/api/availability?serviceId=&date=&staffId=` | Public (availability rate limited) |
+| POST | `/api/inquiries` | Public (rate limited) |
+| GET | `/api/inquiries`, `PATCH /api/inquiries/[id]` | Admin |
 | PUT/POST/DELETE | `/api/services…`, `PUT /api/staff/[id]` | Admin |
 | POST | `/api/appointments` (rate limited, 409 if the slot was taken) | Public |
 | GET | `/api/appointments`, `PATCH /api/appointments/[id]` | Admin |

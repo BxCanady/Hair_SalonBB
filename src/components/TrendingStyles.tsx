@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { flattenImageCandidateUrls } from "@/lib/imageCandidates";
 import { getTrendingStyles } from "@/lib/trendingStyles";
+import FallbackImage from "./FallbackImage";
 
 export default async function TrendingStyles() {
   const styles = await getTrendingStyles();
@@ -23,9 +25,7 @@ export default async function TrendingStyles() {
               Ranked automatically from image frequency and search position.
             </p>
           </div>
-          <Link href="/book" className="text-sm font-medium text-fuchsia-300 transition hover:text-fuchsia-200">
-            Book Now →
-          </Link>
+          <p className="text-sm font-medium text-fuchsia-300">Choose a look and ask the stylist →</p>
         </div>
 
         {styles.length === 0 ? (
@@ -38,19 +38,16 @@ export default async function TrendingStyles() {
               <li key={style.id}>
                 <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-fuchsia-500/20 bg-[#1E0B36]">
                   <div className="relative h-60 bg-[#2A104A]">
-                    {style.imageUrl ? (
-                      // Image providers vary by search result, so native lazy loading supports the complete SerpAPI result set.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={style.imageUrl}
-                        alt={style.name}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-purple-100/50">Image unavailable</div>
-                    )}
+                    <FallbackImage
+                      src={style.imageUrl}
+                      title={style.name}
+                      originalThumbnailUrl={style.thumbnailUrl}
+                      alternativeUrls={flattenImageCandidateUrls(style.imageCandidates)}
+                      alt={style.name}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover"
+                    />
                     <span className="absolute left-3 top-3 rounded-full bg-black/80 px-3 py-1 text-sm font-black text-fuchsia-300">
                       #{index + 1}
                     </span>
@@ -70,10 +67,10 @@ export default async function TrendingStyles() {
                         </a>
                       )}
                       <Link
-                        href={`/book?service=${encodeURIComponent(style.name)}`}
+                        href={`/inquire?style=${encodeURIComponent(style.name)}&source=${encodeURIComponent(style.sourceUrl ?? "")}`}
                         className="ml-auto rounded-full bg-fuchsia-500 px-3 py-2 text-xs font-semibold text-black transition hover:bg-fuchsia-400"
                       >
-                        Book
+                        Inquire
                       </Link>
                     </div>
                   </div>

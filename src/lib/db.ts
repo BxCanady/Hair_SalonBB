@@ -7,9 +7,9 @@ import type { Appointment, Hairstyle, Service, Staff, WorkingHours } from "./typ
  */
 type Store = { services: Service[]; staff: Staff[]; appointments: Appointment[]; hairstyles: Hairstyle[] };
 
-const sampleHairstyle = (n: number, title: string, description: string, serviceId: string, priceCents: number, durationMin: number): Hairstyle => {
+const sampleHairstyle = (n: number, title: string, description: string, imageUrl: string, serviceId: string, priceCents: number, durationMin: number): Hairstyle => {
   const now = new Date().toISOString();
-  return { id: `hs-sample-${n}`, title, description, imageUrl: "/images/hero.png", serviceId, priceCents, durationMin, isPublished: true, sortOrder: n, createdAt: now, updatedAt: now };
+  return { id: `hs-sample-${n}`, title, description, imageUrl, serviceId, priceCents, durationMin, isPublished: true, sortOrder: n, createdAt: now, updatedAt: now };
 };
 
 const weekdayHours = (start: string, end: string, sat = true): WorkingHours => [
@@ -36,9 +36,9 @@ function seed(): Store {
     ],
     appointments: [],
     hairstyles: [
-      sampleHairstyle(1, "Micro Locs", "Fine, lightweight locs installed with precision.", "svc-style", 25000, 360),
-      sampleHairstyle(2, "Custom Braided Perfection", "Tailored braids finished to your vision.", "svc-style", 15000, 240),
-      sampleHairstyle(3, "Short Hair Gripper", "A clean, secure style for shorter hair.", "svc-cut", 8000, 90),
+      sampleHairstyle(1, "Micro Locs", "Fine, lightweight locs installed with precision.", "/images/styles/micro-locs.jpg", "svc-style", 25000, 360),
+      sampleHairstyle(2, "Custom Braided Perfection", "Tailored braids finished to your vision.", "/images/styles/custom-braids.jpg", "svc-style", 15000, 240),
+      sampleHairstyle(3, "Short Hair Gripper", "A clean, secure style for shorter hair.", "/images/styles/short-hair.jpg", "svc-cut", 8000, 90),
     ],
   };
 }

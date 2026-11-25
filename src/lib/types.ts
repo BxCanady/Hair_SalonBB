@@ -42,6 +42,7 @@ export type Hairstyle = {
   title: string;
   description: string;
   imageUrl: string;
+  imageAlternativeUrls?: string[];
   serviceId: string | null;
   priceCents: number;
   durationMin: number;
@@ -52,5 +53,19 @@ export type Hairstyle = {
 };
 
 export type HairstyleInput = Omit<Hairstyle, "id" | "createdAt" | "updatedAt">;
+
+export type StyleInquiryStatus = "new" | "contacted" | "closed";
+export type StyleInquiry = {
+  id: string;
+  styleName: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  message: string;
+  sourceUrl: string | null;
+  status: StyleInquiryStatus;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type Slot = { time: string; staffId: string };

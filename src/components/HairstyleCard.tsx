@@ -2,13 +2,15 @@ import Link from "next/link";
 import { bookHref } from "@/lib/links";
 import { fmtDuration, money } from "@/lib/time";
 import type { Hairstyle } from "@/lib/types";
+import FallbackImage from "./FallbackImage";
 
-export default function HairstyleCard({ hairstyle: h }: { hairstyle: Pick<Hairstyle, "title" | "description" | "imageUrl" | "serviceId" | "priceCents" | "durationMin"> }) {
+export default function HairstyleCard({ hairstyle: h }: { hairstyle: Pick<Hairstyle, "title" | "description" | "imageUrl" | "imageAlternativeUrls" | "serviceId" | "priceCents" | "durationMin"> }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#74216d] bg-[#171017] text-white transition hover:-translate-y-1 hover:border-primary hover:shadow-[0_0_24px_rgba(223,56,213,0.35)]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <FallbackImage
         src={h.imageUrl}
+        title={h.title}
+        alternativeUrls={h.imageAlternativeUrls}
         alt={`${h.title} hairstyle`}
         loading="lazy"
         className="aspect-[4/5] w-full rounded-b-2xl object-cover"

@@ -12,8 +12,10 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    ".vercel/**",
     "out/**",
     "build/**",
+    "storybook-static/**",
     "next-env.d.ts",
   ]),
   ...storybook.configs["flat/recommended"]

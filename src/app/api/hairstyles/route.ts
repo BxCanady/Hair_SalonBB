@@ -3,6 +3,7 @@ import { db, newId } from "@/lib/db";
 import { denyUnlessAdmin } from "@/lib/auth";
 import { parseHairstyle, readJson } from "@/lib/validate";
 import type { Hairstyle } from "@/lib/types";
+import { enrichHairstylesWithImageAlternatives } from "@/lib/hairstyleImageCache";
 
 const bySort = (a: Hairstyle, b: Hairstyle) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt);
 
@@ -11,9 +12,13 @@ export async function GET(req: Request) {
   if (new URL(req.url).searchParams.get("all") === "1") {
     const denied = await denyUnlessAdmin(req);
     if (denied) return denied;
-    return NextResponse.json([...db.hairstyles].sort(bySort));
+    const hairstyles = await enrichHairstylesWithImageAlternatives([...db.hairstyles].sort(bySort));
+    return NextResponse.json(hairstyles);
   }
-  return NextResponse.json(db.hairstyles.filter((h) => h.isPublished).sort(bySort));
+  const hairstyles = await enrichHairstylesWithImageAlternatives(
+    db.hairstyles.filter((h) => h.isPublished).sort(bySort),
+  );
+  return NextResponse.json(hairstyles);
 }
 
 export async function POST(req: Request) {
