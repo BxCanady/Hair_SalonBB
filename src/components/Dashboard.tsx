@@ -65,16 +65,16 @@ function DashboardContent() {
   return (
     <div>
       {error && <p role="alert" className="mb-3 rounded-lg bg-red-50 p-3 text-red-700">{error}</p>}
-      <div className="mb-4 flex items-end justify-between border-b border-gray-200">
+      <div className="mb-4 flex items-end justify-between border-b border-white/20">
         <div role="tablist" className="flex gap-1 overflow-x-auto">
           {tabs.map((t) => (
             <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
-              className={`whitespace-nowrap px-4 py-2 text-sm font-medium ${tab === t ? "border-b-2 border-violet-600 text-violet-700" : "text-gray-500 hover:text-gray-800"}`}>
+              className={`whitespace-nowrap px-4 py-2 text-sm font-medium ${tab === t ? "border-b-2 border-primary text-white" : "text-white/70 hover:text-white"}`}>
               {t}
             </button>
           ))}
         </div>
-        <button onClick={clearToken} className="px-2 py-2 text-sm text-gray-500 underline">Sign out</button>
+        <button onClick={clearToken} className="px-2 py-2 text-sm text-white/75 underline">Sign out</button>
       </div>
       <div role="tabpanel">
         {tab === "Schedule" && <ScheduleTab services={services} stylist={staff[0] ?? null} appointments={appointments} reload={load} />}

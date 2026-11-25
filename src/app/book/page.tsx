@@ -7,9 +7,9 @@ export default function BookPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-6">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-violet-700">Beast@Braids</h1>
+        <h1 className="text-2xl font-bold text-white">Beast@Braids</h1>
       </header>
-      <Suspense fallback={<p className="text-gray-500">Loading…</p>}>
+      <Suspense fallback={<p className="text-white/70">Loading…</p>}>
         <BookingFlow />
       </Suspense>
     </main>

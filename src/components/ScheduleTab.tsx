@@ -40,7 +40,7 @@ export default function ScheduleTab({ services, stylist, appointments, reload }:
   const forDay = (d: string) => visible.filter((a) => a.date === d).sort((a, b) => a.time.localeCompare(b.time));
   const dayList = (d: string) => (
     <ul className="space-y-2">
-      {forDay(d).length === 0 && <li className="text-sm text-gray-500">No appointments.</li>}
+      {forDay(d).length === 0 && <li className="text-sm text-white/70">No appointments.</li>}
       {forDay(d).map((a) => (
         <AppointmentCard key={a.id} a={a} services={services} stylist={stylist} act={act} />
       ))}
@@ -52,14 +52,14 @@ export default function ScheduleTab({ services, stylist, appointments, reload }:
       <div className="flex flex-wrap items-center gap-2">
         <div role="group" aria-label="View" className="flex overflow-hidden rounded-lg border border-gray-300">
           {(["day", "week", "month"] as View[]).map((v) => (
-            <button key={v} aria-pressed={view === v} onClick={() => setView(v)} className={`px-3 py-1.5 text-sm capitalize ${view === v ? "bg-violet-600 text-white" : "bg-white"}`}>{v}</button>
+            <button key={v} aria-pressed={view === v} onClick={() => setView(v)} className={`px-3 py-1.5 text-sm capitalize ${view === v ? "bg-violet-600 text-white" : "bg-white text-gray-900"}`}>{v}</button>
           ))}
         </div>
         <Button size="sm" variant="ghost" aria-label="Previous" onClick={() => shift(-1)}>‹</Button>
         <Button size="sm" variant="ghost" onClick={() => setDate(fmtDate(new Date()))}>Today</Button>
         <Button size="sm" variant="ghost" aria-label="Next" onClick={() => shift(1)}>›</Button>
         <span className="font-medium">{view === "month" ? date.slice(0, 7) : view === "week" ? `${weekStart} – ${addDays(weekStart, 6)}` : date}</span>
-        {stylist && <span className="ml-auto text-sm text-gray-500">Owner: {stylist.name}</span>}
+        {stylist && <span className="ml-auto text-sm text-white/70">Owner: {stylist.name}</span>}
       </div>
       {msg && <p role="alert" className="rounded-lg bg-red-50 p-2 text-sm text-red-700">{msg}</p>}
 

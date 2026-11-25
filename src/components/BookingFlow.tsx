@@ -8,8 +8,8 @@ import CustomerAccount from "./CustomerAccount";
 import { addDays, fmt12, fmtDate, money } from "@/lib/time";
 import type { Appointment, Service, Slot, Staff } from "@/lib/types";
 
-const input = "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200";
-const card = "rounded-2xl border border-gray-200 bg-white p-4 shadow-sm";
+const input = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 placeholder:text-gray-500 focus:border-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200";
+const card = "rounded-2xl border border-gray-200 bg-white p-4 text-gray-950 shadow-sm";
 
 const trendServiceIds: Record<string, string> = {
   "Micro Locs": "svc-style",
@@ -179,7 +179,7 @@ export default function BookingFlow() {
         <h2 id="h-service" className="mb-2 text-lg font-semibold">1. Choose a service</h2>
         {categories.map((c) => (
           <div key={c} className="mb-3">
-            <h3 className="mb-1 text-sm font-medium text-gray-500">{c}</h3>
+            <h3 className="mb-1 text-sm font-medium text-white/75">{c}</h3>
             <div className="grid gap-2 sm:grid-cols-2">
               {services.filter((s) => s.category === c).map((s) => (
                 <button
@@ -201,7 +201,7 @@ export default function BookingFlow() {
       {service && (
         <section aria-labelledby="h-date">
           <h2 id="h-date" className="mb-2 text-lg font-semibold">2. Pick a date &amp; time</h2>
-          {staff[0] && <p className="mb-2 text-sm text-gray-500">Appointments are with {staff[0].name}, the salon owner.</p>}
+          {staff[0] && <p className="mb-2 text-sm text-white/70">Appointments are with {staff[0].name}, the salon owner.</p>}
           <div className={card}>
             <div className="mb-2 flex items-center justify-between">
               <button type="button" aria-label="Previous month" disabled={month.slice(0, 7) <= today.slice(0, 7)} onClick={() => shiftMonth(-1)} className="rounded px-3 py-1 hover:bg-gray-100 disabled:opacity-30">‹</button>
@@ -212,11 +212,11 @@ export default function BookingFlow() {
           </div>
           {date && (
             <div className="mt-3" aria-live="polite">
-              <h3 className="mb-1 text-sm font-medium text-gray-500">Available times on {date}</h3>
+              <h3 className="mb-1 text-sm font-medium text-white/75">Available times on {date}</h3>
               {slotsLoading ? (
-                <p className="text-sm text-gray-500">Loading…</p>
+                <p className="text-sm text-white/70">Loading…</p>
               ) : slots.length === 0 ? (
-                <p className="text-sm text-gray-500">No availability on this day. Try another date.</p>
+                <p className="text-sm text-white/70">No availability on this day. Try another date.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {slots.map((s) => (

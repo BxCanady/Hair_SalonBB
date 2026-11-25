@@ -16,14 +16,11 @@ export default async function TrendingStyles() {
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-400">
-              Google Images discovery
+              Hairstyle discovery
             </p>
             <h2 id="trending-styles-heading" className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
               🔥 Trending Black Hairstyles This Week
             </h2>
-            <p className="mt-2 text-sm text-purple-100/70">
-              Ranked automatically from image frequency and search position.
-            </p>
           </div>
           <p className="text-sm font-medium text-fuchsia-300">Choose a look and ask the stylist →</p>
         </div>

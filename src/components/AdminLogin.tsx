@@ -22,7 +22,7 @@ export default function AdminLogin() {
 
   return (
     <form onSubmit={submit} className={`${cardCls} mx-auto max-w-sm space-y-3`}>
-      <h2 className="text-lg font-semibold">Administrator sign in</h2>
+      <h2 className="text-lg font-semibold text-gray-950">Administrator sign in</h2>
       <label className="block text-sm font-medium">Email
         <input className={inputCls} type="email" required autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>

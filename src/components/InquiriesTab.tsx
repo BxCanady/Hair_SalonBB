@@ -48,20 +48,20 @@ export default function InquiriesTab() {
     setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
   }
 
-  if (loading) return <p className="text-sm text-gray-500">Loading inquiries…</p>;
+  if (loading) return <p className="text-sm text-white/70">Loading inquiries…</p>;
   if (error) return <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{error}</p>;
 
   return (
     <section aria-labelledby="inquiries-heading" className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 id="inquiries-heading" className="text-lg font-semibold">Style inquiries</h2>
-        <button type="button" onClick={() => void load()} className="text-sm font-semibold text-violet-700 underline">Refresh</button>
+        <button type="button" onClick={() => void load()} className="text-sm font-semibold text-primary underline">Refresh</button>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm text-gray-500">No style inquiries yet.</p>
+        <p className="text-sm text-white/70">No style inquiries yet.</p>
       ) : (
         items.map((item) => (
-          <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 text-gray-950 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-gray-950">{item.styleName}</p>
